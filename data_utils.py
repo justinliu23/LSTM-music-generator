@@ -69,23 +69,19 @@ def generate_music(inference_model, indices_tones, chords, diversity = 0.5):
         
         predicted_tones +=  pred[-1]
                 
-        #### POST PROCESSING OF THE PREDICTED TONES ####
         # We will consider "A" and "X" as "C" tones. It is a common choice.
         predicted_tones = predicted_tones.replace(' A',' C').replace(' X',' C')
 
-        # Pruning #1: smoothing measure
         predicted_tones = prune_grammar(predicted_tones)
         
         # Use predicted tones and current chords to generate sounds
         sounds = unparse_grammar(predicted_tones, curr_chords)
 
-        # Pruning #2: removing repeated and too close together sounds
         sounds = prune_notes(sounds)
 
         # Quality assurance: clean up sounds
         sounds = clean_up_notes(sounds)
 
-        # Print number of tones/notes in sounds
         print('Generated %s sounds using the predicted values for the set of chords ("%s") and after pruning' % (len([k for k in sounds if isinstance(k, note.Note)]), i))
         
         # Insert sounds into the output stream
@@ -130,11 +126,9 @@ def predict_and_sample(inference_model, x_initializer = x_initializer, a_initial
     indices -- numpy-array of shape (Ty, 1), matrix of indices representing the values generated
     """
     
-    ### START CODE HERE ###
     pred = inference_model.predict([x_initializer, a_initializer, c_initializer])
     indices = np.argmax(pred, axis = -1)
     results = to_categorical(indices, num_classes=90)
-    ### END CODE HERE ###
     
     return results, indices
 
